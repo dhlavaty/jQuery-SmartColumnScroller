@@ -1,14 +1,32 @@
-﻿	(function( $ )
+﻿/*
+* SmartColumnScroller (for jQuery)
+* version: 0.1 (07 December 2010)
+* @requires jQuery v1.4 or later
+*
+* Copyright 2010 Dusan Hlavaty [ dhlavaty@gmail.com ]
+*
+* Licensed under the MIT:
+* http://www.opensource.org/licenses/mit-license.php
+* You are free to use a SmartColumnScroller in commercial projects as long
+* as the copyright header is left intact.
+*
+* Usage:
+*
+* jQuery(window).load(function () { 
+*   jQuery('#myDiv').smartColumnScroller();
+* });
+*
+* Recommendation: start plugin processing in 'window.load' event and not in 'document.ready'
+*
+*/
+	(function( $ )
 	{
-		/*
-			jQuery SmartColumnScroller plugin
-			-by Dusan Hlavaty
-		*/
 		$.fn.smartColumnScroller = function()
 		{
 			// there's no need to do $(this) because
 			// "this" is already a jquery object
 
+			// Sorry for comments in Slovak language. I translate them in next version. ;-)
 			
 			// for each element, on which was this plugin called do (and then return entire element chain):
 			return this.each(function()
@@ -113,9 +131,3 @@
 			
 		}; /* END: $.fn.smartColumnScroller = function()  */
 	})( jQuery );
-
-	// spustime to na pravy stlpec
-	jQuery('div.col-c').smartColumnScroller();
-	
-	// spustime to na stredny stlpec
-	jQuery('div.col-b2').smartColumnScroller();
