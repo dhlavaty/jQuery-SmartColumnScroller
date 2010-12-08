@@ -1,11 +1,13 @@
-SmartColumnScroller (for jQuery)
+SmartColumnScroller
+ver. 0.2 (08 December 2010)
 
 Copyright 2010 Dusan Hlavaty [ dhlavaty@gmail.com ]
 
+In multicolumn page layout, automatically scrolls smaller column
+so user never sees white space underneath. 
+
 Licensed under the MIT:
 http://www.opensource.org/licenses/mit-license.php
-You are free to use a SmartColumnScroller in commercial projects as long
-as the copyright header is left intact.
 
 Usage:
 
@@ -15,8 +17,3 @@ Usage:
 
 Recommendation:
   start plugin processing in 'window.load' event and not in 'document.ready'
-  
-
-TODO:
-- documentation
-- examples

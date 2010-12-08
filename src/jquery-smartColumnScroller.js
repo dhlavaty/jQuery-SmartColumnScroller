@@ -1,9 +1,11 @@
 ﻿/*
-* SmartColumnScroller (for jQuery)
-* version: 0.1 (07 December 2010)
+* SmartColumnScroller ver. 0.2 (08 December 2010)
 * @requires jQuery v1.4 or later
 *
 * Copyright 2010 Dusan Hlavaty [ dhlavaty@gmail.com ]
+*
+* In multicolumn page layout, automatically scrolls smaller column
+* so user never sees white space underneath. 
 *
 * Licensed under the MIT:
 * http://www.opensource.org/licenses/mit-license.php
@@ -26,91 +28,89 @@
 			// there's no need to do $(this) because
 			// "this" is already a jquery object
 
-			// Sorry for comments in Slovak language. I translate them in next version. ;-)
-			
-			// for each element, on which was this plugin called do (and then return entire element chain):
+			// for each element:
 			return this.each(function()
 			{
 				// tomuto moc nerozumiem (zatial), ale raz pochopim ;-)
 				var $this = $(this);
 
-				// zapamatame si jeho povodnu 'top' poziciu
+				// remembering original 'top' of column
 				$this.data('scs-top', $this.offset().top );
 				
-				// zapamatame si vysku rodicovskeho divu (v tejto vyske sa totiz budeme skrolovat)
+				// remembering original 'left' of column
+				$this.data('scs-left',  parseInt($this.offset().left, 10) - parseInt($this.css('margin-left'), 10));
+				
+				// remembering height of parent (scrolling will occur in this space)
 				$this.data('scs-parent-height', $this.parent().height() );
 				
-				// zaregistrujeme sa pre 'odoberanie' scroll eventu
+				// hook on 'scroll' event
 				$(window).scroll( function()
 				{
-					var exception;
 					try
 					{
-						// var jQueryColumn = jQuery('div.col-c');
+						// prepare some local variables, so that we dont compute them unnecessarily more than once:
 						
-						// pripravime si premenne, aby sme ich neratali pri skrolovani zbytocne viackrat:
-						
-						// vypocitame si vysku stlpca (vyratavame ju vzdy nanovo, ak by sa medzicasom zmenila inym javascriptom)
+						// compute height of column. Will compute it after every scroll event because column may have changed...
+						// ...(for example by another javascript on this page)
 						var jQueryColumnHeight = $this.height();
 						
-						// 'vytiahneme' si vysku rodica
-						var jQueryColumnParentHeight = parseInt($this.data('scs-parent-height'));
+						// get height of parent
+						var jQueryColumnParentHeight = parseInt($this.data('scs-parent-height'), 10);
 
-						// ak je vyska stlca vacsia alebo rovna ako rodic, tak nemame co a kam skrolovat...
+						// if height of column is higher or equal than parent, there is nothing to scroll...
 						if ( jQueryColumnHeight >= jQueryColumnParentHeight )
 						{
-							// ...a koncime
+							// ...so we exit
 							return;
 						}
 						
-						// pripravime si dalsie premenne, aby sme ich neratali pri skrolovani zbytocne viackrat:
+						// prepare some more local variables, so that we dont compute them unnecessarily more than once:
 						
-						// 'vytiahneme' si povodnu 'top' poziciu stlpca
-						var jQueryColumnOriginalTop = parseInt($this.data('scs-top'));
-						// vyratame si vysku viewportu browsera (vyratavame ju vzdy nanovo, ak by uzivatel menil velkost okna)
+						// get original 'top' position of column
+						var jQueryColumnOriginalTop = parseInt($this.data('scs-top'), 10);
+						// calculate height of browsers viewport (Will compute it after every scroll event because user may have changed it)
 						var browserWindowHeight = $(window).height();
-						// zistime si kde uzivatel zaskroloval
+						// get scrollTop position
 						var browserScrollTop = $(document).scrollTop();
 						
-						// Ak uzivatel zaskroloval dole tak, ze uz stlpec nemoze skrolovat (lebo narazil na spodok), tak
-						// prepneme chovanie stlca na 'static' a pridame na vrch stlpca 'margin-top'
+						// If user scrolled all the way down and column can no longer scroll (because touched its bottom),
+						// switch column to 'static' and add correct 'margin-top'
 						if (( jQueryColumnParentHeight + jQueryColumnOriginalTop - browserWindowHeight - browserScrollTop) <= 0)
 						{
-							// ak uz sme v stave 'static', tak nic nerobime
-							if ($this.css('position') != 'static') // TODO: prerobit na .data('phase','3')
+							// if we already are in 'static mode', dont do anything
+							if ($this.css('position') != 'static') // TODO: change to .data('phase','3')
 							{
-								// nastavime na 'static'
+								// set to 'static'
 								$this.css({'position':'static', 'margin-top':jQueryColumnParentHeight - jQueryColumnHeight});
 							}
 							
-							// ukoncime beh
+							// and exit
 							return;
 						}
 						
-						
-						// Ak uzivatel zaskroloval dole tak, ze stlpec uz moze zacat skrolovat (lebo uz by sa pod nim objavilo biele miesto),
-						// tak prepneme chovanie stlca na 'fixed' a vyratame spravne 'top' a 'left' poziciu
+						// If user scrolled down and column can start to 'scroll' (because the white space would appear),
+						// switch column to 'fixed' and set correct 'top' and 'left' position
 						if ((jQueryColumnHeight + jQueryColumnOriginalTop - browserWindowHeight - browserScrollTop) <= 0)
 						{ 
-							// ak uz sme v stave 'fixed', tak nic nerobime
-							if ($this.css('position') != 'fixed') // TODO: prerobit na .data('phase','2')
+							// if we already are in 'fixed mode', dont do anything
+							if ($this.css('position') != 'fixed') // TODO: change to .data('phase','2')
 							{
-								// vyratame spravne 'top' poziciu stlpca
-								var topPos =  browserWindowHeight - jQueryColumnHeight;
-								// vyratame spravne 'left' poziciu stlpca
-								var leftPos = $this.offset().left; // TODO: nacachovat do premennej ?!
+								// calculate correct 'top' position of column
+								var topPos = browserWindowHeight - jQueryColumnHeight;
+								// calculate correct 'left' position of column
+								var leftPos = $this.data('scs-left');
 
-								// nastavime na 'fixed'
+								// set to 'fixed'
 								$this.css({'position':'fixed', 'margin-top':0, 'top': topPos, 'left':leftPos});
 							}
 						} else {
-							// Ak uzivatel zaskroloval dole tak, ze stlpec este nema skrolovat (lebo ho uzivatel este nevidel cely az po spodok),
-							// tak prepneme chovanie stlpca na 'static' a 'margin-top' vynulujeme
+							// If user scrolled down, so that column dont have to 'scroll' yet (because the user has not seen it entire),
+							// switch column to 'static' and reset 'margin-top'
 
-							// ak uz sme v stave 'static', tak nic nerobime
-							if ($this.css('position') != 'static') // TODO: prerobit na .data('phase','1')
+							// if we already are in 'static mode', dont do anything
+							if ($this.css('position') != 'static') // TODO: change to .data('phase','1')
 							{
-								// nastavime na 'static'
+								// set to 'static' and reset 'margin-top'
 								$this.css({'position':'static', 'margin-top':0});
 							}
 						}
@@ -118,8 +118,7 @@
 					}
 					catch (exception)
 					{
-						// ak doslo k akemukolvek problemu, tak 'resetneme'
-						// stlpec do povodneho neskrolovacieho stavu
+						// in case of any error, reset column behavior
 						$this.css({'position':'static', 'margin-top':0});
 					}
 				
