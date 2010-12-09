@@ -9,6 +9,9 @@ so user never sees white space underneath.
 Licensed under the MIT:
 http://www.opensource.org/licenses/mit-license.php
 
+Example:
+http://dhlavaty.github.com/jQuery-SmartColumnScroller/
+
 Usage:
 
   jQuery(window).load(function () { 
