@@ -1,8 +1,8 @@
 ﻿/*
-* SmartColumnScroller ver. 0.2 (08 December 2010)
+* SmartColumnScroller ver. 0.21 (17 January 2011)
 * @requires jQuery v1.4 or later
 *
-* Copyright 2010 Dusan Hlavaty [ dhlavaty@gmail.com ]
+* Copyright 2011 Dusan Hlavaty [ dhlavaty@gmail.com ]
 *
 * In multicolumn page layout, automatically scrolls smaller column
 * so user never sees white space underneath. 
@@ -84,6 +84,9 @@
 								$this.css({'position':'static', 'margin-top':jQueryColumnParentHeight - jQueryColumnHeight});
 							}
 							
+							// remembering original 'left' of column
+							$this.data('scs-left',  parseInt($this.offset().left, 10) - parseInt($this.css('margin-left'), 10));
+							
 							// and exit
 							return;
 						}
@@ -113,6 +116,9 @@
 								// set to 'static' and reset 'margin-top'
 								$this.css({'position':'static', 'margin-top':0});
 							}
+							
+							// remembering original 'left' of column
+							$this.data('scs-left',  parseInt($this.offset().left, 10) - parseInt($this.css('margin-left'), 10));
 						}
 						
 					}

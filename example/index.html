@@ -245,13 +245,134 @@ p.code {background-color: #F6FFBF;}
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js" type="text/javascript"></script>
     <script type="text/javascript">
       /*
-      SmartColumnScroller ver. 0.2 (08 December 2010)
-      Copyright 2010 Dusan Hlavaty [ dhlavaty@gmail.com ]
+      SmartColumnScroller ver. 0.21 (17 January 2011)
+      Copyright 2011 Dusan Hlavaty [ dhlavaty@gmail.com ]
 
       Minified using Google Closure Compiler ( http://closure-compiler.appspot.com/home )
       */
-	(function(c){c.fn.smartColumnScroller=function(){return this.each(function(){var a=c(this);a.data("scs-top",a.offset().top);a.data("scs-left",parseInt(a.offset().left,10)-parseInt(a.css("margin-left"),10));a.data("scs-parent-height",a.parent().height());c(window).scroll(function(){try{var b=a.height(),d=parseInt(a.data("scs-parent-height"),10);if(!(b>=d)){var f=parseInt(a.data("scs-top"),10),e=c(window).height(),g=c(document).scrollTop();if(d+f-e-g<=0)a.css("position")!="static"&&a.css({position:"static", "margin-top":d-b});else if(b+f-e-g<=0){if(a.css("position")!="fixed"){b=e-b;var h=a.data("scs-left");a.css({position:"fixed","margin-top":0,top:b,left:h})}}else a.css("position")!="static"&&a.css({position:"static","margin-top":0})}}catch(i){a.css({position:"static","margin-top":0})}})})}})(jQuery);
 
+	  
+	  
+	  (function( $ )
+	{
+		$.fn.smartColumnScroller = function()
+		{
+			// there's no need to do $(this) because
+			// "this" is already a jquery object
+
+			// for each element:
+			return this.each(function()
+			{
+				// tomuto moc nerozumiem (zatial), ale raz pochopim ;-)
+				var $this = $(this);
+
+				// remembering original 'top' of column
+				$this.data('scs-top', $this.offset().top );
+				
+				// remembering original 'left' of column
+				$this.data('scs-left',  parseInt($this.offset().left, 10) - parseInt($this.css('margin-left'), 10));
+				
+				// remembering height of parent (scrolling will occur in this space)
+				$this.data('scs-parent-height', $this.parent().height() );
+				
+				// hook on 'scroll' event
+				$(window).scroll( function()
+				{
+					try
+					{
+						// prepare some local variables, so that we dont compute them unnecessarily more than once:
+						
+						// compute height of column. Will compute it after every scroll event because column may have changed...
+						// ...(for example by another javascript on this page)
+						var jQueryColumnHeight = $this.height();
+						
+						// get height of parent
+						var jQueryColumnParentHeight = parseInt($this.data('scs-parent-height'), 10);
+
+						// if height of column is higher or equal than parent, there is nothing to scroll...
+						if ( jQueryColumnHeight >= jQueryColumnParentHeight )
+						{
+							// ...so we exit
+							return;
+						}
+						
+						// prepare some more local variables, so that we dont compute them unnecessarily more than once:
+						
+						// get original 'top' position of column
+						var jQueryColumnOriginalTop = parseInt($this.data('scs-top'), 10);
+						// calculate height of browsers viewport (Will compute it after every scroll event because user may have changed it)
+						var browserWindowHeight = $(window).height();
+						// get scrollTop position
+						var browserScrollTop = $(document).scrollTop();
+						
+						// If user scrolled all the way down and column can no longer scroll (because touched its bottom),
+						// switch column to 'static' and add correct 'margin-top'
+						if (( jQueryColumnParentHeight + jQueryColumnOriginalTop - browserWindowHeight - browserScrollTop) <= 0)
+						{
+							// if we already are in 'static mode', dont do anything
+							if ($this.css('position') != 'static') // TODO: change to .data('phase','3')
+							{
+								// set to 'static'
+								$this.css({'position':'static', 'margin-top':jQueryColumnParentHeight - jQueryColumnHeight});
+							}
+							
+							// remembering original 'left' of column
+							$this.data('scs-left',  parseInt($this.offset().left, 10) - parseInt($this.css('margin-left'), 10));
+							
+							// and exit
+							return;
+						}
+						
+						// If user scrolled down and column can start to 'scroll' (because the white space would appear),
+						// switch column to 'fixed' and set correct 'top' and 'left' position
+						if ((jQueryColumnHeight + jQueryColumnOriginalTop - browserWindowHeight - browserScrollTop) <= 0)
+						{ 
+							// if we already are in 'fixed mode', dont do anything
+							if ($this.css('position') != 'fixed') // TODO: change to .data('phase','2')
+							{
+								// calculate correct 'top' position of column
+								var topPos = browserWindowHeight - jQueryColumnHeight;
+								// calculate correct 'left' position of column
+								var leftPos = $this.data('scs-left');
+
+								// set to 'fixed'
+								$this.css({'position':'fixed', 'margin-top':0, 'top': topPos, 'left':leftPos});
+							}
+						} else {
+							// If user scrolled down, so that column dont have to 'scroll' yet (because the user has not seen it entire),
+							// switch column to 'static' and reset 'margin-top'
+
+							// if we already are in 'static mode', dont do anything
+							if ($this.css('position') != 'static') // TODO: change to .data('phase','1')
+							{
+								// set to 'static' and reset 'margin-top'
+								$this.css({'position':'static', 'margin-top':0});
+							}
+							
+							// remembering original 'left' of column
+							$this.data('scs-left',  parseInt($this.offset().left, 10) - parseInt($this.css('margin-left'), 10));
+						}
+						
+					}
+					catch (exception)
+					{
+						// in case of any error, reset column behavior
+						$this.css({'position':'static', 'margin-top':0});
+					}
+				
+				}); // END: scroll( function()
+				
+				
+			}); // END: this.each(function()
+
+			
+		}; /* END: $.fn.smartColumnScroller = function()  */
+	})( jQuery );
+	  
+	  
+	  
+	  
+	  
       // hook on load
       jQuery(window).load(function () {
         jQuery('#myDiv1, #myDiv2').smartColumnScroller();
@@ -298,11 +419,23 @@ jQuery(window).load(function () {<br />
         <p>
          Source code is available on <a href="https://github.com/dhlavaty/jQuery-SmartColumnScroller">https://github.com/dhlavaty/jQuery-SmartColumnScroller</a>
         </p>
+		
+		<h3>Changelog</h3>
+		
+		<p>
+			<ul>
+				<li> <b>ver. 0.21</b> (17 January 2011) 
+					<ul>
+						<li>FIX: Layout breaks on page resize (<a href="https://github.com/dhlavaty/jQuery-SmartColumnScroller/issues/#issue/1">Issue no.1</a>)</li>
+					</ul>
+				</li>
+			</ul>
+		</p>
         
         <h3>License</h3>
         
         <p>
-         Copyright 2010 Dusan Hlavaty [ dhlavaty@gmail.com ]
+         Copyright 2011 Dusan Hlavaty [ dhlavaty@gmail.com ]
         </p>
         
         <p>
@@ -381,7 +514,7 @@ jQuery(window).load(function () {<br />
     <div class="header grid_30 alpha omega">
       <hr />
         <h2>Footer - maybe some interesting text... ;-) </h2>
-        &copy; 2010 Dušan Hlavatý ; Licensed under <a href="http://www.opensource.org/licenses/mit-license.php">The MIT License</a>
+        &copy; 2011 Dušan Hlavatý ; Licensed under <a href="http://www.opensource.org/licenses/mit-license.php">The MIT License</a>
       <hr />
     </div>
   

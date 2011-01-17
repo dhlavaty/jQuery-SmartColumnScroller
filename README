@@ -1,7 +1,7 @@
 SmartColumnScroller
-ver. 0.2 (08 December 2010)
+ver. 0.21 (17 January 2011)
 
-Copyright 2010 Dusan Hlavaty [ dhlavaty@gmail.com ]
+Copyright 2011 Dusan Hlavaty [ dhlavaty@gmail.com ]
 
 In multicolumn page layout, automatically scrolls smaller column
 so user never sees white space underneath. 
